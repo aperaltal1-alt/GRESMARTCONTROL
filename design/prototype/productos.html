@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productos — GRE Smart Control</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components-premium.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main-area">
+      <header class="header" id="header"></header>
+      <main class="content">
+        <div class="page-header">
+          <div><h1 class="page-title">Productos</h1><p class="page-subtitle" style="margin-bottom:0">Catálogo maestro de productos</p></div>
+          <button class="btn btn-primary"><i data-lucide="plus"></i> Nuevo Producto</button>
+        </div>
+        <div class="filter-bar">
+          <input class="filter-input" placeholder="Buscar por código o nombre...">
+          <select class="filter-input filter-select"><option>Todas las categorías</option><option>Granos</option><option>Lácteos</option></select>
+          <div class="tabs" style="border:none;margin:0">
+            <button class="tab active">Tabla</button>
+            <button class="tab">Tarjetas</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-container">
+            <table>
+              <thead><tr><th>Código</th><th>Nombre</th><th>Categoría</th><th>Unidad</th><th>Stock Kardex</th><th>Stock Mín.</th><th>Estado</th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="font-mono">ARROZ-001</td><td>Arroz Premium</td><td>Granos</td><td>UND</td><td>98</td><td>10</td><td><span class="badge badge-success">Normal</span></td><td class="td-actions"><button class="btn btn-ghost btn-sm"><i data-lucide="eye"></i></button><button class="btn btn-ghost btn-sm"><i data-lucide="pencil"></i></button></td></tr>
+                <tr><td class="font-mono">AZUCAR-02</td><td>Azúcar Rubia</td><td>Granos</td><td>UND</td><td>50</td><td>5</td><td><span class="badge badge-success">Normal</span></td><td class="td-actions"><button class="btn btn-ghost btn-sm"><i data-lucide="eye"></i></button><button class="btn btn-ghost btn-sm"><i data-lucide="pencil"></i></button></td></tr>
+                <tr><td class="font-mono">FIDEO-003</td><td>Fideo Spaghetti</td><td>Granos</td><td>UND</td><td style="color:var(--error);font-weight:600">3</td><td>5</td><td><span class="badge badge-error">Stock Bajo</span></td><td class="td-actions"><button class="btn btn-ghost btn-sm"><i data-lucide="eye"></i></button><button class="btn btn-ghost btn-sm"><i data-lucide="pencil"></i></button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <h3 style="font-size:16px;margin:24px 0 16px;color:var(--text-muted)">Vista Tarjetas</h3>
+        <div class="product-grid">
+          <div class="card product-card"><div class="code">ARROZ-001</div><h3>Arroz Premium</h3><div style="font-size:13px;color:var(--text-muted);margin-bottom:8px">Granos · UND</div><div class="stock">98</div><div style="font-size:12px;color:var(--text-muted)">unidades en kardex</div></div>
+          <div class="card product-card"><div class="code">AZUCAR-02</div><h3>Azúcar Rubia</h3><div style="font-size:13px;color:var(--text-muted);margin-bottom:8px">Granos · UND</div><div class="stock">50</div><div style="font-size:12px;color:var(--text-muted)">unidades en kardex</div></div>
+          <div class="card product-card" style="border-color:var(--error)"><div class="code">FIDEO-003</div><h3>Fideo Spaghetti</h3><div style="font-size:13px;color:var(--text-muted);margin-bottom:8px">Granos · UND</div><div class="stock stock-low">3</div><div style="font-size:12px;color:var(--error)">⚠ Bajo mínimo (5)</div></div>
+        </div>
+      </main>
+      <footer class="footer">GRE Smart Control v0.1.0 · © 2026</footer>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script src="js/interactions.js"></script>
+  <script>initApp('Productos', 'Productos');</script>
+</body>
+</html>

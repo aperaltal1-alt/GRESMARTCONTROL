@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Incidencias — GRE Smart Control</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components-premium.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main-area">
+      <header class="header" id="header"></header>
+      <main class="content">
+        <h1 class="page-title">Incidencias</h1>
+        <p class="page-subtitle">Gestión formal de diferencias detectadas</p>
+        <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="kpi-card"><div class="kpi-label">Pendientes</div><div class="kpi-value" style="color:var(--warning)">8</div></div>
+          <div class="kpi-card"><div class="kpi-label">Revisadas</div><div class="kpi-value" style="color:var(--info)">3</div></div>
+          <div class="kpi-card"><div class="kpi-label">Resueltas</div><div class="kpi-value" style="color:var(--success)">12</div></div>
+        </div>
+        <div class="filter-bar">
+          <select class="filter-input filter-select"><option>Todos los estados</option><option>Pendiente</option><option>Revisada</option><option>Resuelta</option></select>
+          <select class="filter-input filter-select"><option>Todos los tipos</option><option>GRE-Kardex</option><option>GRE-Físico</option><option>Kardex-Físico</option></select>
+        </div>
+        <div class="card">
+          <div class="table-container">
+            <table>
+              <thead><tr><th>ID</th><th>GRE</th><th>Producto</th><th>Tipo</th><th>GRE</th><th>Kardex</th><th>Físico</th><th>Diferencia</th><th>Estado</th><th>Fecha</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>INC-023</td><td class="font-mono">GRE-050</td><td>ARROZ-001</td><td><span class="badge badge-error">GRE-Físico</span></td><td>100</td><td>98</td><td>95</td><td style="color:var(--error);font-weight:600">+5</td><td><span class="badge badge-warning">Pendiente</span></td><td>07/07/2026</td><td><button class="btn btn-primary btn-sm">Resolver</button></td></tr>
+                <tr><td>INC-022</td><td class="font-mono">GRE-050</td><td>ARROZ-001</td><td><span class="badge badge-warning">GRE-Kardex</span></td><td>100</td><td>98</td><td>95</td><td style="color:var(--warning);font-weight:600">+2</td><td><span class="badge badge-warning">Pendiente</span></td><td>07/07/2026</td><td><button class="btn btn-primary btn-sm">Resolver</button></td></tr>
+                <tr><td>INC-021</td><td class="font-mono">GRE-048</td><td>AZUCAR-02</td><td><span class="badge badge-warning">GRE-Kardex</span></td><td>50</td><td>48</td><td>48</td><td style="color:var(--warning);font-weight:600">+2</td><td><span class="badge badge-info">Revisada</span></td><td>06/07/2026</td><td><button class="btn btn-secondary btn-sm">Ver</button></td></tr>
+                <tr><td>INC-020</td><td class="font-mono">GRE-045</td><td>FIDEO-003</td><td><span class="badge badge-success">Resuelta</span></td><td>30</td><td>30</td><td>30</td><td>0</td><td><span class="badge badge-success">Resuelta</span></td><td>04/07/2026</td><td><button class="btn btn-ghost btn-sm"><i data-lucide="eye"></i></button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+      <footer class="footer">GRE Smart Control v0.1.0 · © 2026</footer>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script src="js/interactions.js"></script>
+  <script>initApp('Incidencias', 'Incidencias');</script>
+</body>
+</html>

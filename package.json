@@ -1,0 +1,35 @@
+{
+  "name": "gre-smart-control",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MVP GRE SMART CONTROL — Conciliación inteligente de GRE, Kardex e Inventario",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspaces --if-present",
+    "build:api": "npm run build --workspace=apps/api",
+    "build:api:prod": "npm run db:migrate:deploy --workspace=apps/api && npm run build:prod --workspace=apps/api",
+    "build:web": "npm run build --workspace=apps/web",
+    "build:prod": "npm run build:api:prod && npm run build:web",
+    "start:api": "npm run start:prod --workspace=apps/api",
+    "db:migrate": "npm run db:migrate --workspace=apps/api",
+    "db:migrate:deploy": "npm run db:migrate:deploy --workspace=apps/api",
+    "db:seed": "npm run db:seed --workspace=apps/api",
+    "db:studio": "npm run db:studio --workspace=apps/api",
+    "db:reset": "npm run db:reset --workspace=apps/api",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

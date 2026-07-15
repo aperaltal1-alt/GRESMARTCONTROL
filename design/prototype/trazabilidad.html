@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trazabilidad — GRE Smart Control</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components-premium.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main-area">
+      <header class="header" id="header"></header>
+      <main class="content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Trazabilidad</h1>
+            <p class="page-subtitle" style="margin-bottom:0">Recorrido completo de la mercadería — emisión a conciliación</p>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <input class="filter-input" placeholder="Buscar por producto, GRE o código..." value="ARROZ-001" style="flex:1;max-width:420px" aria-label="Buscar trazabilidad">
+          <select class="filter-input filter-select" aria-label="Filtrar eventos"><option>Todos los eventos</option><option>Emisión GRE</option><option>Transporte</option><option>Conciliación</option></select>
+        </div>
+
+        <div class="card elevated">
+          <div class="card-header">
+            <div>
+              <span class="card-title">Timeline — ARROZ-001</span>
+              <p style="font-size:12px;color:var(--text-muted);margin-top:4px;font-weight:500">GRE-050 · Distribuidora XYZ</p>
+            </div>
+            <span class="badge badge-error">Estado: Con Diferencia</span>
+          </div>
+          <div class="card-body">
+            <div class="timeline-premium">
+              <div class="timeline-item">
+                <div class="timeline-dot brand"><i data-lucide="file-text"></i></div>
+                <div class="timeline-card">
+                  <div class="timeline-header"><span class="timeline-title">1. Emisión GRE</span><span class="timeline-time">07/07/2026 · 09:30</span></div>
+                  <div class="timeline-desc">GRE-050 registrada con 100 unidades de ARROZ-001. Transportista: Transportes A. Origen: Av. Industrial 123.</div>
+                  <div class="timeline-meta"><span class="badge badge-brand">Documento</span></div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot brand"><i data-lucide="upload"></i></div>
+                <div class="timeline-card">
+                  <div class="timeline-header"><span class="timeline-title">Archivo XML cargado</span><span class="timeline-time">09:35</span></div>
+                  <div class="timeline-desc">guia_remision_050.xml (24 KB) · Integridad SHA-256 verificada</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot warning"><i data-lucide="truck"></i></div>
+                <div class="timeline-card">
+                  <div class="timeline-header"><span class="timeline-title">2. Salida / Transporte</span><span class="timeline-time">10:00</span></div>
+                  <div class="timeline-desc">Despacho confirmado. Destino: Jr. Comercio 456. Ref: GRE-050.</div>
+                  <div class="timeline-meta"><span class="badge badge-warning">Logística</span></div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot warning"><i data-lucide="arrow-left-right"></i></div>
+                <div class="timeline-card">
+                  <div class="timeline-header"><span class="timeline-title">3. Movimiento Kardex</span><span class="timeline-time">10:00</span></div>
+                  <div class="timeline-desc">Salida: -100 unidades. Stock kardex: 198 → 98. Usuario: Juan Pérez.</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot info"><i data-lucide="package-check"></i></div>
+                <div class="timeline-card">
+                  <div class="timeline-header"><span class="timeline-title">4. Recepción</span><span class="timeline-time">13:30</span></div>
+                  <div class="timeline-desc">Mercadería recibida en almacén destino. Pendiente conteo físico.</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot warning"><i data-lucide="clipboard-list"></i></div>
+                <div class="timeline-card">
+                  <div class="timeline-header"><span class="timeline-title">5. Conteo Stock Físico</span><span class="timeline-time">14:00</span></div>
+                  <div class="timeline-desc">Conteo: 95 unidades registradas. Ubicación: Almacén A. Usuario: María López.</div>
+                  <div class="timeline-meta"><span class="badge badge-warning">Almacén A</span></div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot brand"><i data-lucide="scale"></i></div>
+                <div class="timeline-card">
+                  <div class="timeline-header"><span class="timeline-title">6. Conciliación iniciada</span><span class="timeline-time">14:05</span></div>
+                  <div class="timeline-desc">Comparación automática: GRE(100) vs Kardex(98) vs Físico(95)</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot error"><i data-lucide="alert-triangle"></i></div>
+                <div class="timeline-card" style="border-color:rgba(239,68,68,0.3)">
+                  <div class="timeline-header"><span class="timeline-title">7. Incidencias detectadas</span><span class="timeline-time">14:05</span></div>
+                  <div class="timeline-desc" style="color:var(--error-text)">
+                    GRE vs Kardex: +2 u. · GRE vs Físico: +5 u. · Kardex vs Físico: +3 u.
+                  </div>
+                  <div class="timeline-meta">
+                    <a href="conciliacion.html" class="btn btn-primary btn-sm">Ir a conciliación</a>
+                    <a href="incidencias.html" class="btn btn-secondary btn-sm">Ver incidencias</a>
+                  </div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot pending" style="background:var(--bg-tertiary);color:var(--text-muted);border:2px dashed var(--border)"><i data-lucide="hourglass"></i></div>
+                <div class="timeline-card" style="opacity:0.85">
+                  <div class="timeline-header"><span class="timeline-title">8. Estado Final</span><span class="timeline-time">Pendiente</span></div>
+                  <div class="timeline-desc">Esperando resolución de incidencias por supervisor.</div>
+                  <div class="timeline-meta"><span class="badge badge-warning">Pendiente de revisión</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <footer class="footer">GRE Smart Control v0.1.0 · © 2026</footer>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script src="js/interactions.js"></script>
+  <script>initApp('Trazabilidad', 'Trazabilidad');</script>
+</body>
+</html>

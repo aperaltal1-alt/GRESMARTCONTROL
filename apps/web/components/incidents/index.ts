@@ -1,0 +1,10 @@
+export { IncidentsPageContent } from './incidents-page';
+export { IncidentsTable } from './incidents-table';
+export { IncidentsToolbar } from './incidents-toolbar';
+export { IncidentDetailDialog } from './incident-detail-dialog';
+export { ResolveIncidentDialog } from './resolve-incident-dialog';
+export { IncidentEstadoBadge } from './incident-estado-badge';
+export { IncidentPrioridadBadge } from './incident-prioridad-badge';
+export { IncidentsEmpty } from './incidents-empty';
+export { IncidentsTableSkeleton } from './incidents-skeleton';
+export { IncidentsPagination } from './incidents-pagination';

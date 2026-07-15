@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GRE — GRE Smart Control</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components-premium.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main-area">
+      <header class="header" id="header"></header>
+      <main class="content">
+        <div class="page-header">
+          <div><h1 class="page-title">Guías de Remisión</h1><p class="page-subtitle" style="margin-bottom:0">Gestión de GRE electrónicas y archivos adjuntos</p></div>
+          <button class="btn btn-primary btn-press"><i data-lucide="plus"></i> Nueva GRE</button>
+        </div>
+        <div class="card elevated">
+          <div class="table-toolbar">
+            <div class="table-toolbar-left">
+              <input class="filter-input" placeholder="Buscar número, RUC..." data-table-search="gre-table" aria-label="Buscar GRE">
+              <select class="filter-input filter-select" data-table-filter="gre-table" data-filter-col="6" aria-label="Filtrar estado">
+                <option value="">Todos los estados</option><option>pendiente</option><option>conciliada</option><option>diferencia</option>
+              </select>
+            </div>
+            <div class="table-toolbar-right">
+              <button class="btn btn-secondary btn-sm" onclick="showTableSkeleton('gre-table')"><i data-lucide="refresh-cw"></i></button>
+              <button class="btn btn-secondary btn-sm"><i data-lucide="columns"></i> Columnas</button>
+              <button class="btn btn-secondary btn-sm"><i data-lucide="download"></i> Exportar</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="data-table table-fade" id="gre-table">
+              <thead>
+                <tr>
+                  <th data-sort>Número</th><th data-sort>Serie</th><th data-sort>Fecha</th>
+                  <th data-sort>RUC</th><th>Transportista</th><th data-sort>Productos</th>
+                  <th>Archivos</th><th data-sort>Estado</th><th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="font-mono">GRE-050</td><td>T001</td><td>07/07/2026</td><td class="font-mono">20123456789</td><td>Transportes A</td><td>2</td><td><span class="badge badge-info">XML</span></td><td><span class="badge badge-warning">Pendiente</span></td><td class="td-actions"><button class="btn btn-ghost btn-sm" aria-label="Ver"><i data-lucide="eye"></i></button><button class="btn btn-ghost btn-sm" aria-label="Editar"><i data-lucide="pencil"></i></button></td></tr>
+                <tr><td class="font-mono">GRE-049</td><td>T001</td><td>06/07/2026</td><td class="font-mono">20123456789</td><td>Transportes B</td><td>3</td><td><span class="badge badge-info">XML</span> <span class="badge badge-neutral">PDF</span></td><td><span class="badge badge-success">Conciliada</span></td><td class="td-actions"><button class="btn btn-ghost btn-sm"><i data-lucide="eye"></i></button></td></tr>
+                <tr><td class="font-mono">GRE-048</td><td>T001</td><td>06/07/2026</td><td class="font-mono">20123456789</td><td>Transportes A</td><td>1</td><td>—</td><td><span class="badge badge-error">Con Diferencia</span></td><td class="td-actions"><button class="btn btn-ghost btn-sm"><i data-lucide="eye"></i></button><button class="btn btn-ghost btn-sm"><i data-lucide="pencil"></i></button></td></tr>
+                <tr><td class="font-mono">GRE-047</td><td>T001</td><td>05/07/2026</td><td class="font-mono">20123456789</td><td>Transportes C</td><td>5</td><td><span class="badge badge-info">XML</span></td><td><span class="badge badge-success">Conciliada</span></td><td class="td-actions"><button class="btn btn-ghost btn-sm"><i data-lucide="eye"></i></button></td></tr>
+                <tr><td class="font-mono">GRE-046</td><td>T001</td><td>05/07/2026</td><td class="font-mono">20123456789</td><td>Transportes A</td><td>2</td><td>—</td><td><span class="badge badge-neutral">Anulada</span></td><td class="td-actions"><button class="btn btn-ghost btn-sm"><i data-lucide="eye"></i></button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination"><span>Mostrando 1-5 de 128</span><div class="pagination-btns"><button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button><button class="page-btn">›</button></div></div>
+        </div>
+      </main>
+      <footer class="footer">GRE Smart Control v0.1.0 · © 2026</footer>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script src="js/interactions.js"></script>
+  <script>initApp('GRE', 'Guías de Remisión');</script>
+</body>
+</html>

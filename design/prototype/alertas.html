@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alertas — GRE Smart Control</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components-premium.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main-area">
+      <header class="header" id="header"></header>
+      <main class="content">
+        <div class="page-header">
+          <div><h1 class="page-title">Alertas</h1><p class="page-subtitle" style="margin-bottom:0">Notificaciones proactivas del sistema</p></div>
+          <button class="btn btn-secondary">Marcar todas leídas</button>
+        </div>
+        <div class="tabs">
+          <button class="tab active">Todas (15)</button>
+          <button class="tab">Diferencias (8)</button>
+          <button class="tab">Stock Mínimo (4)</button>
+          <button class="tab">Tributarias (3)</button>
+        </div>
+        <div class="alert-list">
+          <div class="alert-card error">
+            <div class="alert-title"><span>⚠ Diferencia GRE vs Stock Físico</span><span class="alert-time">hace 2h</span></div>
+            <div class="alert-desc">ARROZ-001 en GRE-050: GRE declara 100 unidades, stock físico tiene 95</div>
+            <div class="alert-actions"><button class="btn btn-primary btn-sm">Ver incidencia</button><button class="btn btn-ghost btn-sm">Marcar leída</button></div>
+          </div>
+          <div class="alert-card warning">
+            <div class="alert-title"><span>⚠ Stock mínimo alcanzado</span><span class="alert-time">hace 5h</span></div>
+            <div class="alert-desc">FIDEO-003: stock kardex 3 unidades, mínimo configurado 5</div>
+            <div class="alert-actions"><button class="btn btn-primary btn-sm">Ver producto</button><button class="btn btn-ghost btn-sm">Marcar leída</button></div>
+          </div>
+          <div class="alert-card error">
+            <div class="alert-title"><span>⚠ Diferencia GRE vs Kardex</span><span class="alert-time">hace 1d</span></div>
+            <div class="alert-desc">AZUCAR-02 en GRE-048: GRE declara 50, kardex tiene 48</div>
+            <div class="alert-actions"><button class="btn btn-primary btn-sm">Ver incidencia</button><button class="btn btn-ghost btn-sm">Marcar leída</button></div>
+          </div>
+          <div class="alert-card warning">
+            <div class="alert-title"><span>⚠ GRE pendiente de conciliación</span><span class="alert-time">hace 1d</span></div>
+            <div class="alert-desc">GRE-050 registrada hace 24 horas sin conciliación</div>
+            <div class="alert-actions"><button class="btn btn-primary btn-sm">Conciliar</button><button class="btn btn-ghost btn-sm">Marcar leída</button></div>
+          </div>
+          <div class="alert-card info">
+            <div class="alert-title"><span>ℹ Alerta tributaria preventiva</span><span class="alert-time">hace 2d</span></div>
+            <div class="alert-desc">3 GRE con diferencias acumuladas en el mes. Riesgo tributario: Moderado (32%)</div>
+            <div class="alert-actions"><button class="btn btn-primary btn-sm">Ver dashboard</button><button class="btn btn-ghost btn-sm">Marcar leída</button></div>
+          </div>
+        </div>
+      </main>
+      <footer class="footer">GRE Smart Control v0.1.0 · © 2026</footer>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script src="js/interactions.js"></script>
+  <script>initApp('Alertas', 'Alertas');</script>
+</body>
+</html>

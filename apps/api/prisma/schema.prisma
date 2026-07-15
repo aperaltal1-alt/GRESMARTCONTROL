@@ -1,0 +1,1165 @@
+// =============================================================================
+// GRE SMART CONTROL — Schema Prisma v3.0 (Enterprise-ready MVP)
+// =============================================================================
+// Fase 3 — Base de Datos
+// Motor: PostgreSQL 16
+// Entidades: 33 tablas | Multi-tenant por empresaId | Soft delete | Auditoría
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+/// Plan comercial de la empresa (MVP → Enterprise)
+enum PlanEmpresa {
+  MVP
+  PRO
+  ENTERPRISE
+}
+
+/// Acciones granulares para permisos RBAC
+enum AccionPermiso {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  EXECUTE
+  EXPORT
+}
+
+/// Estado operativo de proveedores y clientes
+enum EstadoEntidad {
+  ACTIVO
+  INACTIVO
+}
+
+/// Tipos de ubicación dentro de un almacén (zona, estante, etc.)
+enum TipoUbicacion {
+  ZONA
+  ESTANTE
+  PASILLO
+  RECEPCION
+  DESPACHO
+  OTRO
+}
+
+/// Tipos de movimiento del kardex
+enum TipoMovimientoKardex {
+  ENTRADA
+  SALIDA
+  AJUSTE
+}
+
+/// Origen del movimiento de kardex
+enum ReferenciaMovimientoTipo {
+  GRE
+  AJUSTE
+  TRANSFERENCIA
+  MANUAL
+}
+
+/// Método de registro de conteo físico
+enum MetodoStockFisico {
+  MANUAL
+  SCANNER
+  IMPORTACION
+}
+
+/// Estado del documento GRE en el ciclo de conciliación
+enum GreEstado {
+  PENDIENTE
+  CONCILIADA
+  CON_DIFERENCIA
+  ANULADA
+}
+
+/// Estado de envío/validación ante SUNAT
+enum EstadoSunat {
+  NO_ENVIADO
+  ACEPTADO
+  RECHAZADO
+  OBSERVADO
+}
+
+/// Tipos de archivo adjunto a una GRE
+enum TipoArchivoGre {
+  XML
+  PDF
+  CDR
+  OTRO
+}
+
+/// Estado de una ejecución de conciliación
+enum ConciliacionEstado {
+  EN_PROCESO
+  COMPLETADA
+  CON_DIFERENCIAS
+  ERROR
+}
+
+/// Método utilizado para ejecutar la conciliación
+enum ConciliacionMetodo {
+  MANUAL
+  AUTOMATICO
+  IA
+  SUNAT
+}
+
+/// Resultado por línea en historial de conciliación
+enum HistorialConciliacionResultado {
+  OK
+  DIFERENCIA
+  NO_ENCONTRADO
+}
+
+/// Tipo de diferencia detectada en incidencia
+enum TipoIncidencia {
+  GRE_KARDEX
+  GRE_FISICO
+  KARDEX_FISICO
+  TRIPLE
+}
+
+/// Estado de resolución de incidencia
+enum IncidenciaEstado {
+  PENDIENTE
+  REVISADA
+  RESUELTA
+  DESCARTADA
+}
+
+/// Prioridad de atención de incidencia
+enum IncidenciaPrioridad {
+  BAJA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+/// Tipos de alerta del sistema
+enum TipoAlerta {
+  STOCK_INSUFICIENTE
+  STOCK_MINIMO
+  DIFERENCIA_GRE
+  DIFERENCIA_KARDEX
+  DIFERENCIA_FISICO
+  GRE_PENDIENTE
+  TRIBUTARIA
+  SUNAT_RECHAZADO
+  CONCILIACION_PENDIENTE
+}
+
+/// Nivel de severidad de alerta
+enum NivelAlerta {
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+/// Eventos del timeline de trazabilidad end-to-end
+enum TipoEventoTrazabilidad {
+  GRE_EMITIDA
+  ARCHIVO_CARGADO
+  MOVIMIENTO_KARDEX
+  STOCK_FISICO_REGISTRADO
+  CONCILIACION_INICIADA
+  CONCILIACION_COMPLETADA
+  CONCILIACION_CON_DIFERENCIA
+  INCIDENCIA_CREADA
+  INCIDENCIA_RESUELTA
+}
+
+/// Acciones registradas en auditoría
+enum AccionAuditoria {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  EXPORT
+  EXECUTE
+}
+
+/// Tipo de dato de parámetro de configuración
+enum TipoConfiguracion {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
+
+/// Categoría de parámetro de configuración
+enum CategoriaConfiguracion {
+  SISTEMA
+  CONCILIACION
+  SUNAT
+  UI
+  IA
+  POWERBI
+}
+
+/// Tipo de integración externa
+enum TipoIntegracion {
+  SUNAT
+  POWER_BI
+  WEBHOOK
+  OCR
+  ERP
+  EMAIL
+}
+
+/// Estado de una integración
+enum EstadoIntegracion {
+  ACTIVA
+  INACTIVA
+  ERROR
+  PENDIENTE_CONFIG
+}
+
+/// Catálogos oficiales SUNAT — evita valores fijos en código
+enum TipoCatalogoSunat {
+  TIPO_DOCUMENTO
+  MOTIVO_TRASLADO
+  UNIDAD_SUNAT
+  ESTADO_CPE
+  TIPO_TRANSPORTE
+  TIPO_DOC_IDENTIDAD
+  OTRO
+}
+
+// =============================================================================
+// DOMINIO A — TENANCY Y SEGURIDAD
+// =============================================================================
+
+/// Raíz del multi-tenant. Cada empresa opera de forma aislada.
+model Empresa {
+  id              String      @id @default(uuid()) @db.Uuid
+  ruc             String      @unique @db.VarChar(11)
+  razonSocial     String      @map("razon_social") @db.VarChar(255)
+  nombreComercial String?     @map("nombre_comercial") @db.VarChar(255)
+  direccion       String?     @db.VarChar(500)
+  telefono        String?     @db.VarChar(20)
+  email           String?     @db.VarChar(255)
+  logoUrl         String?     @map("logo_url") @db.VarChar(500)
+  plan            PlanEmpresa @default(MVP)
+  activo          Boolean     @default(true)
+  deletedAt       DateTime?   @map("deleted_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  // Relaciones
+  usuarios            Usuario[]
+  roles               Rol[]
+  categorias          Categoria[]
+  unidadesMedida      UnidadMedida[]
+  almacenes           Almacen[]
+  ubicaciones         Ubicacion[]
+  productos           Producto[]
+  proveedores         Proveedor[]
+  clientes            Cliente[]
+  kardexes            Kardex[]
+  movimientosKardex   MovimientoKardex[]
+  inventarios         Inventario[]
+  stockFisicos        StockFisico[]
+  tiposDocumento      TipoDocumento[]
+  series              Serie[]
+  estadosDocumento    EstadoDocumento[]
+  gres                Gre[]
+  conciliaciones      Conciliacion[]
+  incidencias         Incidencia[]
+  alertas             Alerta[]
+  trazabilidadEventos TrazabilidadEvento[]
+  auditorias          Auditoria[]
+  configuraciones     Configuracion[]
+  integraciones       Integracion[]
+  dashboardCaches     DashboardCache[]
+  powerBiConfig       PowerBiConfig?
+
+  @@index([activo])
+  @@index([deletedAt])
+  @@map("empresas")
+}
+
+/// Roles del sistema (globales o custom por empresa)
+model Rol {
+  id          String    @id @default(uuid()) @db.Uuid
+  codigo      String    @db.VarChar(50)
+  nombre      String    @db.VarChar(100)
+  descripcion String?   @db.Text
+  esSistema   Boolean   @default(false) @map("es_sistema")
+  empresaId   String?   @map("empresa_id") @db.Uuid
+  activo      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  empresa    Empresa?     @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  usuarios   Usuario[]
+  rolPermisos RolPermiso[]
+
+  @@unique([codigo, empresaId])
+  @@index([empresaId])
+  @@map("roles")
+}
+
+/// Permisos granulares RBAC (gre.create, conciliacion.execute, etc.)
+model Permiso {
+  id          String        @id @default(uuid()) @db.Uuid
+  codigo      String        @unique @db.VarChar(100)
+  modulo      String        @db.VarChar(50)
+  accion      AccionPermiso
+  descripcion String?       @db.Text
+  activo      Boolean       @default(true)
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  rolPermisos RolPermiso[]
+
+  @@index([modulo])
+  @@map("permisos")
+}
+
+/// Tabla puente M:N entre Rol y Permiso
+model RolPermiso {
+  id         String   @id @default(uuid()) @db.Uuid
+  rolId      String   @map("rol_id") @db.Uuid
+  permisoId  String   @map("permiso_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  rol     Rol     @relation(fields: [rolId], references: [id], onDelete: Cascade)
+  permiso Permiso @relation(fields: [permisoId], references: [id], onDelete: Cascade)
+
+  @@unique([rolId, permisoId])
+  @@map("rol_permisos")
+}
+
+/// Cuentas de acceso. Un usuario pertenece a una empresa (MVP).
+model Usuario {
+  id            String    @id @default(uuid()) @db.Uuid
+  email         String    @unique @db.VarChar(255)
+  passwordHash  String    @map("password_hash") @db.VarChar(255)
+  nombre        String    @db.VarChar(150)
+  apellido      String?   @db.VarChar(150)
+  rolId         String    @map("rol_id") @db.Uuid
+  empresaId     String    @map("empresa_id") @db.Uuid
+  ultimoLoginAt DateTime? @map("ultimo_login_at")
+  activo        Boolean   @default(true)
+  deletedAt     DateTime? @map("deleted_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  rol     Rol     @relation(fields: [rolId], references: [id], onDelete: Restrict)
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  movimientosKardex     MovimientoKardex[]
+  stockFisicos          StockFisico[]
+  archivosGre           ArchivoGre[]
+  gresCreadas           Gre[]              @relation("GreCreador")
+  conciliaciones        Conciliacion[]
+  incidenciasResueltas  Incidencia[]       @relation("IncidenciaResolutor")
+  trazabilidadEventos   TrazabilidadEvento[]
+  auditorias            Auditoria[]
+  configuraciones       Configuracion[]
+
+  @@index([empresaId])
+  @@index([rolId])
+  @@index([deletedAt])
+  @@map("usuarios")
+}
+
+/// Sesiones de refresh token — solo se almacena el hash SHA-256
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  usuarioId String    @map("usuario_id") @db.Uuid
+  tokenHash String    @map("token_hash") @db.VarChar(64)
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  ip        String?   @db.VarChar(45)
+  userAgent String?   @map("user_agent") @db.VarChar(500)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+/// Tokens de recuperación de contraseña — hash SHA-256, un solo uso
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  usuarioId String    @map("usuario_id") @db.Uuid
+  tokenHash String    @map("token_hash") @db.VarChar(64)
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@index([usuarioId])
+  @@map("password_reset_tokens")
+}
+
+/// Control de intentos de login — rate limit 5 intentos / bloqueo 15 min
+model LoginAttempt {
+  id            String    @id @default(uuid()) @db.Uuid
+  email         String    @db.VarChar(255)
+  ip            String    @db.VarChar(45)
+  attempts      Int       @default(0)
+  blockedUntil  DateTime? @map("blocked_until")
+  lastAttemptAt DateTime  @default(now()) @map("last_attempt_at")
+
+  @@unique([email, ip])
+  @@map("login_attempts")
+}
+
+// =============================================================================
+// DOMINIO B — CATÁLOGOS MAESTROS
+// =============================================================================
+
+/// Clasificación de productos por empresa
+model Categoria {
+  id          String    @id @default(uuid()) @db.Uuid
+  empresaId   String    @map("empresa_id") @db.Uuid
+  codigo      String    @db.VarChar(50)
+  nombre      String    @db.VarChar(150)
+  descripcion String?   @db.Text
+  activo      Boolean   @default(true)
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  empresa   Empresa    @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  productos Producto[]
+
+  @@unique([codigo, empresaId])
+  @@index([empresaId])
+  @@map("categorias")
+}
+
+/// Unidades de medida (UND, KG, LT). Global o por empresa.
+model UnidadMedida {
+  id        String   @id @default(uuid()) @db.Uuid
+  empresaId String?  @map("empresa_id") @db.Uuid
+  codigo    String   @db.VarChar(20)
+  nombre    String   @db.VarChar(100)
+  simbolo   String?  @db.VarChar(10)
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  empresa      Empresa?      @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  productos    Producto[]
+  detallesGre  DetalleGre[]
+
+  @@unique([codigo, empresaId])
+  @@index([empresaId])
+  @@map("unidades_medida")
+}
+
+/// Proveedores asociados a GRE y futuras compras
+model Proveedor {
+  id              String        @id @default(uuid()) @db.Uuid
+  empresaId       String        @map("empresa_id") @db.Uuid
+  ruc             String        @db.VarChar(11)
+  razonSocial     String        @map("razon_social") @db.VarChar(255)
+  nombreComercial String?       @map("nombre_comercial") @db.VarChar(255)
+  direccion       String?       @db.VarChar(500)
+  telefono        String?       @db.VarChar(20)
+  correo          String?       @db.VarChar(255)
+  estado          EstadoEntidad @default(ACTIVO)
+  deletedAt       DateTime?     @map("deleted_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  gres    Gre[]
+
+  @@unique([ruc, empresaId])
+  @@index([empresaId])
+  @@index([estado])
+  @@map("proveedores")
+}
+
+/// Clientes para futuros despachos y entregas
+model Cliente {
+  id              String        @id @default(uuid()) @db.Uuid
+  empresaId       String        @map("empresa_id") @db.Uuid
+  ruc             String        @db.VarChar(11)
+  razonSocial     String        @map("razon_social") @db.VarChar(255)
+  nombreComercial String?       @map("nombre_comercial") @db.VarChar(255)
+  direccion       String?       @db.VarChar(500)
+  telefono        String?       @db.VarChar(20)
+  correo          String?       @db.VarChar(255)
+  estado          EstadoEntidad @default(ACTIVO)
+  deletedAt       DateTime?     @map("deleted_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  gres    Gre[]
+
+  @@unique([ruc, empresaId])
+  @@index([empresaId])
+  @@index([estado])
+  @@map("clientes")
+}
+
+/// Catálogo maestro de productos (sin stock — vive en Kardex/Inventario)
+model Producto {
+  id              String    @id @default(uuid()) @db.Uuid
+  empresaId       String    @map("empresa_id") @db.Uuid
+  categoriaId     String    @map("categoria_id") @db.Uuid
+  unidadMedidaId  String    @map("unidad_medida_id") @db.Uuid
+  codigo          String    @db.VarChar(50)
+  nombre          String    @db.VarChar(255)
+  descripcion     String?   @db.Text
+  codigoBarras    String?   @map("codigo_barras") @db.VarChar(50)
+  stockMinimo     Decimal   @default(0) @map("stock_minimo") @db.Decimal(18, 4)
+  activo          Boolean   @default(true)
+  deletedAt       DateTime? @map("deleted_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  empresa   Empresa      @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  categoria Categoria    @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  unidadMedida UnidadMedida @relation(fields: [unidadMedidaId], references: [id], onDelete: Restrict)
+
+  kardex                Kardex?
+  movimientosKardex     MovimientoKardex[]
+  inventarios           Inventario[]
+  stockFisicos          StockFisico[]
+  detallesGre           DetalleGre[]
+  historialConciliacion HistorialConciliacion[]
+  incidencias           Incidencia[]
+  alertas               Alerta[]
+  trazabilidadEventos   TrazabilidadEvento[]
+
+  @@unique([codigo, empresaId])
+  @@index([empresaId])
+  @@index([categoriaId])
+  @@index([codigoBarras])
+  @@index([deletedAt])
+  @@map("productos")
+}
+
+// =============================================================================
+// DOMINIO C — ALMACÉN, UBICACIÓN E INVENTARIO
+// =============================================================================
+
+/// Almacén físico de la empresa. Jerarquía: Empresa → Almacén → Ubicación
+model Almacen {
+  id          String    @id @default(uuid()) @db.Uuid
+  empresaId   String    @map("empresa_id") @db.Uuid
+  codigo      String    @db.VarChar(50)
+  nombre      String    @db.VarChar(150)
+  direccion   String?   @db.VarChar(500)
+  esPrincipal Boolean   @default(false) @map("es_principal")
+  activo      Boolean   @default(true)
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  empresa     Empresa      @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  ubicaciones Ubicacion[]
+  inventarios Inventario[]
+
+  @@unique([codigo, empresaId])
+  @@index([empresaId])
+  @@index([esPrincipal])
+  @@map("almacenes")
+}
+
+/// Ubicación dentro de un almacén (zona, estante, recepción, etc.)
+model Ubicacion {
+  id                String        @id @default(uuid()) @db.Uuid
+  empresaId         String        @map("empresa_id") @db.Uuid
+  almacenId         String        @map("almacen_id") @db.Uuid
+  codigo            String        @db.VarChar(50)
+  nombre            String        @db.VarChar(150)
+  tipo              TipoUbicacion @default(ZONA)
+  ubicacionPadreId  String?       @map("ubicacion_padre_id") @db.Uuid
+  activo            Boolean       @default(true)
+  deletedAt         DateTime?     @map("deleted_at")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  empresa        Empresa     @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  almacen        Almacen     @relation(fields: [almacenId], references: [id], onDelete: Restrict)
+  ubicacionPadre Ubicacion?  @relation("UbicacionJerarquia", fields: [ubicacionPadreId], references: [id], onDelete: SetNull)
+  subUbicaciones Ubicacion[] @relation("UbicacionJerarquia")
+
+  inventarios  Inventario[]
+  stockFisicos StockFisico[]
+  movimientosKardex MovimientoKardex[]
+
+  @@unique([codigo, almacenId])
+  @@index([empresaId])
+  @@index([almacenId])
+  @@map("ubicaciones")
+}
+
+/// Registro maestro del kardex — 1:1 con Producto en MVP
+model Kardex {
+  id                 String    @id @default(uuid()) @db.Uuid
+  empresaId          String    @map("empresa_id") @db.Uuid
+  productoId         String    @unique @map("producto_id") @db.Uuid
+  saldoActual        Decimal   @default(0) @map("saldo_actual") @db.Decimal(18, 4)
+  ultimoMovimientoAt DateTime? @map("ultimo_movimiento_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  empresa    Empresa            @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  producto   Producto           @relation(fields: [productoId], references: [id], onDelete: Restrict)
+  movimientos MovimientoKardex[]
+
+  @@index([empresaId])
+  @@map("kardex")
+}
+
+/// Líneas de movimiento del kardex — append-only (inmutable)
+model MovimientoKardex {
+  id             String                   @id @default(uuid()) @db.Uuid
+  kardexId       String                   @map("kardex_id") @db.Uuid
+  productoId     String                   @map("producto_id") @db.Uuid
+  empresaId      String                   @map("empresa_id") @db.Uuid
+  ubicacionId    String?                  @map("ubicacion_id") @db.Uuid
+  tipo           TipoMovimientoKardex
+  cantidad       Decimal                  @db.Decimal(18, 4)
+  saldoAnterior  Decimal                  @map("saldo_anterior") @db.Decimal(18, 4)
+  saldoNuevo     Decimal                  @map("saldo_nuevo") @db.Decimal(18, 4)
+  referencia     String?                  @db.VarChar(100)
+  referenciaTipo ReferenciaMovimientoTipo? @map("referencia_tipo")
+  referenciaId   String?                  @map("referencia_id") @db.Uuid
+  observacion    String?                  @db.Text
+  usuarioId      String                   @map("usuario_id") @db.Uuid
+  createdAt      DateTime                 @default(now()) @map("created_at")
+
+  kardex    Kardex     @relation(fields: [kardexId], references: [id], onDelete: Restrict)
+  producto  Producto   @relation(fields: [productoId], references: [id], onDelete: Restrict)
+  empresa   Empresa    @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  ubicacion Ubicacion? @relation(fields: [ubicacionId], references: [id], onDelete: SetNull)
+  usuario   Usuario    @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+
+  @@index([productoId, createdAt(sort: Desc)])
+  @@index([empresaId, createdAt(sort: Desc)])
+  @@index([kardexId])
+  @@map("movimientos_kardex")
+}
+
+/// Vista materializada de stock por producto + ubicación
+model Inventario {
+  id                  String   @id @default(uuid()) @db.Uuid
+  empresaId           String   @map("empresa_id") @db.Uuid
+  almacenId           String   @map("almacen_id") @db.Uuid
+  productoId          String   @map("producto_id") @db.Uuid
+  ubicacionId         String   @map("ubicacion_id") @db.Uuid
+  cantidadKardex      Decimal  @default(0) @map("cantidad_kardex") @db.Decimal(18, 4)
+  cantidadFisica      Decimal  @default(0) @map("cantidad_fisica") @db.Decimal(18, 4)
+  cantidadDisponible  Decimal  @default(0) @map("cantidad_disponible") @db.Decimal(18, 4)
+  cantidadReservada   Decimal  @default(0) @map("cantidad_reservada") @db.Decimal(18, 4)
+  ultimaActualizacion DateTime @default(now()) @map("ultima_actualizacion")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  empresa   Empresa   @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  almacen   Almacen   @relation(fields: [almacenId], references: [id], onDelete: Restrict)
+  producto  Producto  @relation(fields: [productoId], references: [id], onDelete: Restrict)
+  ubicacion Ubicacion @relation(fields: [ubicacionId], references: [id], onDelete: Restrict)
+
+  @@unique([productoId, ubicacionId])
+  @@index([empresaId, ultimaActualizacion(sort: Desc)])
+  @@index([almacenId])
+  @@map("inventarios")
+}
+
+/// Conteos físicos — fuente de verdad independiente del kardex
+model StockFisico {
+  id           String           @id @default(uuid()) @db.Uuid
+  empresaId    String           @map("empresa_id") @db.Uuid
+  productoId   String           @map("producto_id") @db.Uuid
+  ubicacionId  String           @map("ubicacion_id") @db.Uuid
+  cantidad     Decimal          @db.Decimal(18, 4)
+  fechaConteo  DateTime         @map("fecha_conteo") @db.Date
+  metodo       MetodoStockFisico @default(MANUAL)
+  observacion  String?          @db.Text
+  usuarioId    String           @map("usuario_id") @db.Uuid
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  empresa   Empresa   @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  producto  Producto  @relation(fields: [productoId], references: [id], onDelete: Restrict)
+  ubicacion Ubicacion @relation(fields: [ubicacionId], references: [id], onDelete: Restrict)
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+
+  @@index([productoId, ubicacionId, fechaConteo(sort: Desc)])
+  @@index([empresaId])
+  @@map("stock_fisico")
+}
+
+// =============================================================================
+// DOMINIO D — CATÁLOGO SUNAT Y DOCUMENTOS
+// =============================================================================
+
+/// Catálogos oficiales SUNAT — códigos que cambian con el tiempo
+model CatalogoSunat {
+  id           String           @id @default(uuid()) @db.Uuid
+  tipo         TipoCatalogoSunat
+  codigo       String           @db.VarChar(20)
+  nombre       String           @db.VarChar(255)
+  descripcion  String?          @db.Text
+  metadata     Json?
+  vigenteDesde DateTime?        @map("vigente_desde") @db.Date
+  vigenteHasta DateTime?        @map("vigente_hasta") @db.Date
+  activo       Boolean          @default(true)
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  tiposDocumento TipoDocumento[]
+
+  @@unique([tipo, codigo])
+  @@index([tipo, activo])
+  @@map("catalogo_sunat")
+}
+
+/// Tipos de documentos tributarios (GRE, Factura, etc.)
+model TipoDocumento {
+  id              String   @id @default(uuid()) @db.Uuid
+  empresaId       String?  @map("empresa_id") @db.Uuid
+  catalogoSunatId String?  @map("catalogo_sunat_id") @db.Uuid
+  codigo          String   @db.VarChar(20)
+  nombre          String   @db.VarChar(100)
+  descripcion     String?  @db.Text
+  codigoSunat     String?  @map("codigo_sunat") @db.VarChar(10)
+  activo          Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  empresa        Empresa?        @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  catalogoSunat  CatalogoSunat?  @relation(fields: [catalogoSunatId], references: [id], onDelete: SetNull)
+  series         Serie[]
+  gres           Gre[]
+  estadosDocumento EstadoDocumento[]
+
+  @@unique([codigo, empresaId])
+  @@index([empresaId])
+  @@map("tipos_documento")
+}
+
+/// Series de numeración por tipo de documento
+model Serie {
+  id                String   @id @default(uuid()) @db.Uuid
+  empresaId         String   @map("empresa_id") @db.Uuid
+  tipoDocumentoId   String   @map("tipo_documento_id") @db.Uuid
+  codigo            String   @db.VarChar(10)
+  correlativoActual Int      @default(0) @map("correlativo_actual")
+  activo            Boolean  @default(true)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  empresa       Empresa       @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  tipoDocumento TipoDocumento @relation(fields: [tipoDocumentoId], references: [id], onDelete: Restrict)
+  gres          Gre[]
+
+  @@unique([codigo, empresaId])
+  @@index([empresaId])
+  @@map("series")
+}
+
+/// Estados configurables de documentos con color para UI
+model EstadoDocumento {
+  id              String   @id @default(uuid()) @db.Uuid
+  empresaId       String   @map("empresa_id") @db.Uuid
+  tipoDocumentoId String?  @map("tipo_documento_id") @db.Uuid
+  codigo          String   @db.VarChar(30)
+  nombre          String   @db.VarChar(100)
+  color           String   @default("#64748B") @db.VarChar(7)
+  activo          Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  empresa       Empresa        @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  tipoDocumento TipoDocumento? @relation(fields: [tipoDocumentoId], references: [id], onDelete: SetNull)
+  gres          Gre[]
+
+  @@unique([codigo, empresaId, tipoDocumentoId])
+  @@index([empresaId])
+  @@map("estados_documento")
+}
+
+/// Guía de Remisión Electrónica — documento central del sistema
+model Gre {
+  id                String     @id @default(uuid()) @db.Uuid
+  empresaId         String     @map("empresa_id") @db.Uuid
+  tipoDocumentoId   String     @map("tipo_documento_id") @db.Uuid
+  serieId           String     @map("serie_id") @db.Uuid
+  numero            String     @db.VarChar(20)
+  fechaEmision      DateTime   @map("fecha_emision") @db.Date
+  rucEmisor         String     @map("ruc_emisor") @db.VarChar(11)
+  rucDestinatario   String?    @map("ruc_destinatario") @db.VarChar(11)
+  proveedorId       String?    @map("proveedor_id") @db.Uuid
+  clienteId         String?    @map("cliente_id") @db.Uuid
+  transportista     String?    @db.VarChar(255)
+  origen            String?    @db.VarChar(500)
+  destino           String?    @db.VarChar(500)
+  estado            GreEstado  @default(PENDIENTE)
+  estadoDocumentoId String?    @map("estado_documento_id") @db.Uuid
+  codigoSunat       String?    @map("codigo_sunat") @db.VarChar(50)
+  hashCpe           String?    @map("hash_cpe") @db.VarChar(64)
+  estadoSunat       EstadoSunat @default(NO_ENVIADO) @map("estado_sunat")
+  fechaEnvioSunat   DateTime?  @map("fecha_envio_sunat")
+  respuestaSunat    Json?      @map("respuesta_sunat")
+  observacion       String?    @db.Text
+  activo            Boolean    @default(true)
+  deletedAt         DateTime?  @map("deleted_at")
+  createdById       String     @map("created_by_id") @db.Uuid
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+
+  empresa         Empresa          @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  tipoDocumento   TipoDocumento    @relation(fields: [tipoDocumentoId], references: [id], onDelete: Restrict)
+  serie           Serie            @relation(fields: [serieId], references: [id], onDelete: Restrict)
+  proveedor       Proveedor?       @relation(fields: [proveedorId], references: [id], onDelete: SetNull)
+  cliente         Cliente?         @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  estadoDocumento EstadoDocumento? @relation(fields: [estadoDocumentoId], references: [id], onDelete: SetNull)
+  creador         Usuario          @relation("GreCreador", fields: [createdById], references: [id], onDelete: Restrict)
+
+  detalles        DetalleGre[]
+  archivos        ArchivoGre[]
+  conciliaciones  Conciliacion[]
+  incidencias     Incidencia[]
+  alertas         Alerta[]
+  trazabilidadEventos TrazabilidadEvento[]
+
+  @@unique([serieId, numero, empresaId])
+  @@index([empresaId, estado, fechaEmision(sort: Desc)])
+  @@index([empresaId, estadoSunat])
+  @@index([proveedorId])
+  @@index([clienteId])
+  @@index([deletedAt])
+  @@map("gre")
+}
+
+/// Líneas de productos dentro de una GRE
+model DetalleGre {
+  id              String   @id @default(uuid()) @db.Uuid
+  greId           String   @map("gre_id") @db.Uuid
+  productoId      String?  @map("producto_id") @db.Uuid
+  codigoProducto  String   @map("codigo_producto") @db.VarChar(50)
+  descripcion     String   @db.VarChar(255)
+  cantidad        Decimal  @db.Decimal(18, 4)
+  unidadMedidaId  String?  @map("unidad_medida_id") @db.Uuid
+  orden           Int      @default(1)
+
+  gre          Gre           @relation(fields: [greId], references: [id], onDelete: Cascade)
+  producto     Producto?     @relation(fields: [productoId], references: [id], onDelete: SetNull)
+  unidadMedida UnidadMedida? @relation(fields: [unidadMedidaId], references: [id], onDelete: SetNull)
+
+  historialConciliacion HistorialConciliacion[]
+
+  @@index([greId])
+  @@index([productoId])
+  @@map("detalle_gre")
+}
+
+/// Archivos adjuntos XML/PDF/CDR de la GRE
+model ArchivoGre {
+  id                  String         @id @default(uuid()) @db.Uuid
+  greId               String         @map("gre_id") @db.Uuid
+  tipo                TipoArchivoGre
+  nombreOriginal      String         @map("nombre_original") @db.VarChar(255)
+  nombreAlmacenado    String         @map("nombre_almacenado") @db.VarChar(255)
+  ruta                String         @db.VarChar(500)
+  mimeType            String         @map("mime_type") @db.VarChar(100)
+  tamanoBytes         BigInt         @map("tamano_bytes")
+  hashSha256          String         @map("hash_sha256") @db.VarChar(64)
+  procesado           Boolean        @default(false)
+  contenidoParseado   Json?          @map("contenido_parseado")
+  errorProcesamiento  String?        @map("error_procesamiento") @db.Text
+  usuarioId           String         @map("usuario_id") @db.Uuid
+  createdAt           DateTime       @default(now()) @map("created_at")
+
+  gre     Gre     @relation(fields: [greId], references: [id], onDelete: Cascade)
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+
+  @@index([greId, tipo])
+  @@index([hashSha256])
+  @@map("archivo_gre")
+}
+
+// =============================================================================
+// DOMINIO E — CONCILIACIÓN Y CONTROL
+// =============================================================================
+
+/// Cabecera de ejecución de conciliación — versionada por GRE
+model Conciliacion {
+  id                 String             @id @default(uuid()) @db.Uuid
+  empresaId          String             @map("empresa_id") @db.Uuid
+  greId              String             @map("gre_id") @db.Uuid
+  version            Int                @default(1)
+  estado             ConciliacionEstado @default(EN_PROCESO)
+  metodo             ConciliacionMetodo @default(AUTOMATICO)
+  totalLineas        Int                @default(0) @map("total_lineas")
+  lineasOk           Int                @default(0) @map("lineas_ok")
+  lineasConDiferencia Int               @default(0) @map("lineas_con_diferencia")
+  confianzaIa        Decimal?           @map("confianza_ia") @db.Decimal(5, 2)
+  sugerenciaIa       Json?              @map("sugerencia_ia")
+  ejecutadoPorId     String             @map("ejecutado_por_id") @db.Uuid
+  iniciadoAt         DateTime           @default(now()) @map("iniciado_at")
+  completadoAt       DateTime?          @map("completado_at")
+  duracionMs         Int?               @map("duracion_ms")
+  observacion        String?            @db.Text
+
+  empresa      Empresa    @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  gre          Gre        @relation(fields: [greId], references: [id], onDelete: Restrict)
+  ejecutadoPor Usuario    @relation(fields: [ejecutadoPorId], references: [id], onDelete: Restrict)
+
+  historial    HistorialConciliacion[]
+  incidencias  Incidencia[]
+  alertas      Alerta[]
+
+  @@unique([greId, version])
+  @@index([greId, completadoAt(sort: Desc)])
+  @@index([empresaId])
+  @@map("conciliaciones")
+}
+
+/// Detalle línea por línea — snapshot inmutable de cantidades
+model HistorialConciliacion {
+  id               String                        @id @default(uuid()) @db.Uuid
+  conciliacionId   String                        @map("conciliacion_id") @db.Uuid
+  productoId       String                        @map("producto_id") @db.Uuid
+  detalleGreId     String                        @map("detalle_gre_id") @db.Uuid
+  cantidadGre      Decimal                       @map("cantidad_gre") @db.Decimal(18, 4)
+  cantidadKardex   Decimal                       @map("cantidad_kardex") @db.Decimal(18, 4)
+  cantidadFisico   Decimal                       @map("cantidad_fisico") @db.Decimal(18, 4)
+  diffGreKardex    Decimal                       @map("diff_gre_kardex") @db.Decimal(18, 4)
+  diffGreFisico    Decimal                       @map("diff_gre_fisico") @db.Decimal(18, 4)
+  diffKardexFisico Decimal                       @map("diff_kardex_fisico") @db.Decimal(18, 4)
+  resultado        HistorialConciliacionResultado
+  scoreIa          Decimal?                      @map("score_ia") @db.Decimal(5, 2)
+  explicacionIa    String?                       @map("explicacion_ia") @db.Text
+  metadata         Json?
+  createdAt        DateTime                      @default(now()) @map("created_at")
+
+  conciliacion Conciliacion @relation(fields: [conciliacionId], references: [id], onDelete: Cascade)
+  producto     Producto     @relation(fields: [productoId], references: [id], onDelete: Restrict)
+  detalleGre   DetalleGre   @relation(fields: [detalleGreId], references: [id], onDelete: Restrict)
+  incidencia   Incidencia?
+
+  @@index([conciliacionId, resultado])
+  @@index([productoId])
+  @@map("historial_conciliaciones")
+}
+
+/// Diferencias que requieren revisión humana
+model Incidencia {
+  id                       String              @id @default(uuid()) @db.Uuid
+  empresaId                String              @map("empresa_id") @db.Uuid
+  greId                    String              @map("gre_id") @db.Uuid
+  productoId               String              @map("producto_id") @db.Uuid
+  conciliacionId           String              @map("conciliacion_id") @db.Uuid
+  historialConciliacionId  String              @unique @map("historial_conciliacion_id") @db.Uuid
+  tipo                     TipoIncidencia
+  cantidadGre              Decimal             @map("cantidad_gre") @db.Decimal(18, 4)
+  cantidadKardex           Decimal             @map("cantidad_kardex") @db.Decimal(18, 4)
+  cantidadFisico           Decimal             @map("cantidad_fisico") @db.Decimal(18, 4)
+  diferencia               Decimal             @db.Decimal(18, 4)
+  estado                   IncidenciaEstado    @default(PENDIENTE)
+  prioridad                IncidenciaPrioridad @default(MEDIA)
+  observacion              String?             @db.Text
+  resueltoPorId            String?             @map("resuelto_por_id") @db.Uuid
+  createdAt                DateTime            @default(now()) @map("created_at")
+  resolvedAt               DateTime?           @map("resolved_at")
+
+  empresa               Empresa               @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  gre                   Gre                   @relation(fields: [greId], references: [id], onDelete: Restrict)
+  producto              Producto              @relation(fields: [productoId], references: [id], onDelete: Restrict)
+  conciliacion          Conciliacion          @relation(fields: [conciliacionId], references: [id], onDelete: Restrict)
+  historialConciliacion HistorialConciliacion @relation(fields: [historialConciliacionId], references: [id], onDelete: Restrict)
+  resueltoPor           Usuario?              @relation("IncidenciaResolutor", fields: [resueltoPorId], references: [id], onDelete: SetNull)
+
+  alertas Alerta[]
+
+  @@index([empresaId, estado, createdAt(sort: Desc)])
+  @@index([greId, estado])
+  @@map("incidencias")
+}
+
+/// Notificaciones activas para dashboards y badges
+model Alerta {
+  id              String     @id @default(uuid()) @db.Uuid
+  empresaId       String     @map("empresa_id") @db.Uuid
+  tipo            TipoAlerta
+  nivel           NivelAlerta @default(WARNING)
+  mensaje         String     @db.Text
+  productoId      String?    @map("producto_id") @db.Uuid
+  greId           String?    @map("gre_id") @db.Uuid
+  conciliacionId  String?    @map("conciliacion_id") @db.Uuid
+  incidenciaId    String?    @map("incidencia_id") @db.Uuid
+  leida           Boolean    @default(false)
+  activa          Boolean    @default(true)
+  metadata        Json?
+  createdAt       DateTime   @default(now()) @map("created_at")
+  expiraAt        DateTime?  @map("expira_at")
+
+  empresa      Empresa       @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  producto     Producto?     @relation(fields: [productoId], references: [id], onDelete: SetNull)
+  gre          Gre?          @relation(fields: [greId], references: [id], onDelete: SetNull)
+  conciliacion Conciliacion? @relation(fields: [conciliacionId], references: [id], onDelete: SetNull)
+  incidencia   Incidencia?   @relation(fields: [incidenciaId], references: [id], onDelete: SetNull)
+
+  @@index([empresaId, activa, createdAt(sort: Desc)])
+  @@index([empresaId, leida, activa])
+  @@map("alertas")
+}
+
+/// Timeline inmutable del ciclo de vida de la mercadería
+model TrazabilidadEvento {
+  id          String                 @id @default(uuid()) @db.Uuid
+  empresaId   String                 @map("empresa_id") @db.Uuid
+  productoId  String?                @map("producto_id") @db.Uuid
+  greId       String?                @map("gre_id") @db.Uuid
+  tipoEvento  TipoEventoTrazabilidad @map("tipo_evento")
+  descripcion String                 @db.Text
+  entidad     String                 @db.VarChar(50)
+  entidadId   String                 @map("entidad_id") @db.Uuid
+  metadata    Json?
+  usuarioId   String?                @map("usuario_id") @db.Uuid
+  createdAt   DateTime               @default(now()) @map("created_at")
+
+  empresa  Empresa   @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  producto Producto? @relation(fields: [productoId], references: [id], onDelete: SetNull)
+  gre      Gre?      @relation(fields: [greId], references: [id], onDelete: SetNull)
+  usuario  Usuario?  @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  @@index([productoId, createdAt(sort: Desc)])
+  @@index([greId, createdAt(sort: Desc)])
+  @@index([empresaId, createdAt(sort: Desc)])
+  @@map("trazabilidad_eventos")
+}
+
+// =============================================================================
+// DOMINIO F — PLATAFORMA
+// =============================================================================
+
+/// Registro inmutable de acciones del sistema (append-only)
+model Auditoria {
+  id               String          @id @default(uuid()) @db.Uuid
+  empresaId        String?         @map("empresa_id") @db.Uuid
+  usuarioId        String?         @map("usuario_id") @db.Uuid
+  usuarioNombre    String?         @map("usuario_nombre") @db.VarChar(200)
+  usuarioEmail     String?         @map("usuario_email") @db.VarChar(255)
+  fecha            DateTime        @default(now()) @db.Date
+  ip               String?         @db.VarChar(45)
+  userAgent        String?         @map("user_agent") @db.VarChar(500)
+  accion           AccionAuditoria
+  entidad          String          @db.VarChar(50)
+  entidadId        String?         @map("entidad_id") @db.Uuid
+  registroAnterior Json?           @map("registro_anterior")
+  registroNuevo    Json?           @map("registro_nuevo")
+  metadata         Json?
+  createdAt        DateTime        @default(now()) @map("created_at")
+
+  empresa Empresa? @relation(fields: [empresaId], references: [id], onDelete: SetNull)
+  usuario Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  @@index([entidad, entidadId, createdAt(sort: Desc)])
+  @@index([empresaId, createdAt(sort: Desc)])
+  @@index([usuarioId, createdAt(sort: Desc)])
+  @@map("auditorias")
+}
+
+/// Parámetros clave-valor del sistema por categoría
+model Configuracion {
+  id          String               @id @default(uuid()) @db.Uuid
+  empresaId   String?              @map("empresa_id") @db.Uuid
+  clave       String               @db.VarChar(100)
+  valor       String               @db.Text
+  tipo        TipoConfiguracion    @default(STRING)
+  categoria   CategoriaConfiguracion @default(SISTEMA)
+  descripcion String?              @db.VarChar(255)
+  esSecreto   Boolean              @default(false) @map("es_secreto")
+  activo      Boolean              @default(true)
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  updatedById String?              @map("updated_by_id") @db.Uuid
+
+  empresa   Empresa? @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+  updatedBy Usuario? @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@unique([clave, empresaId])
+  @@index([categoria])
+  @@map("configuraciones")
+}
+
+/// Conectores externos: SUNAT, Power BI, webhooks, OCR, ERP
+model Integracion {
+  id            String            @id @default(uuid()) @db.Uuid
+  empresaId     String            @map("empresa_id") @db.Uuid
+  tipo          TipoIntegracion
+  proveedor     String            @db.VarChar(100)
+  nombre        String            @db.VarChar(150)
+  estado        EstadoIntegracion @default(PENDIENTE_CONFIG)
+  credenciales  Json?
+  configuracion Json?
+  ultimaSyncAt  DateTime?         @map("ultima_sync_at")
+  ultimoError   String?           @map("ultimo_error") @db.Text
+  activo        Boolean           @default(false)
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+
+  @@index([empresaId, tipo, activo])
+  @@map("integraciones")
+}
+
+/// Caché materializado de KPIs para dashboards
+model DashboardCache {
+  id         String   @id @default(uuid()) @db.Uuid
+  empresaId  String   @map("empresa_id") @db.Uuid
+  clave      String   @db.VarChar(100)
+  periodo    String   @db.VarChar(20)
+  payload    Json
+  computedAt DateTime @default(now()) @map("computed_at")
+  expiresAt  DateTime @map("expires_at")
+  version    Int      @default(1)
+
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+
+  @@unique([empresaId, clave, periodo])
+  @@index([expiresAt])
+  @@map("dashboard_cache")
+}
+
+/// Configuración Power BI Embedded por empresa (1:1)
+model PowerBiConfig {
+  id              String   @id @default(uuid()) @db.Uuid
+  empresaId       String   @unique @map("empresa_id") @db.Uuid
+  workspaceId     String?  @map("workspace_id") @db.VarChar(100)
+  reportId        String?  @map("report_id") @db.VarChar(100)
+  datasetId       String?  @map("dataset_id") @db.VarChar(100)
+  embedUrl        String?  @map("embed_url") @db.VarChar(500)
+  filtroEmpresa   String?  @map("filtro_empresa") @db.VarChar(200)
+  refreshSchedule String?  @map("refresh_schedule") @db.VarChar(50)
+  activo          Boolean  @default(false)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Restrict)
+
+  @@map("power_bi_config")
+}

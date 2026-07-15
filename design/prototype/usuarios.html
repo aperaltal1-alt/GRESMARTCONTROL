@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios — GRE Smart Control</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components-premium.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main-area">
+      <header class="header" id="header"></header>
+      <main class="content">
+        <div class="page-header">
+          <div><h1 class="page-title">Usuarios</h1><p class="page-subtitle" style="margin-bottom:0">Gestión de accesos y roles</p></div>
+          <button class="btn btn-primary"><i data-lucide="user-plus"></i> Nuevo Usuario</button>
+        </div>
+        <div class="card">
+          <div class="table-container">
+            <table>
+              <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Empresa</th><th>Estado</th><th>Último acceso</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Juan Pérez</td><td>juan@empresa.com</td><td><span class="badge badge-info">Administrador</span></td><td>Distribuidora XYZ</td><td><span class="badge badge-success">Activo</span></td><td>Hoy 09:30</td><td class="td-actions"><button class="btn btn-ghost btn-sm"><i data-lucide="pencil"></i></button></td></tr>
+                <tr><td>María López</td><td>maria@empresa.com</td><td><span class="badge badge-warning">Supervisor</span></td><td>Distribuidora XYZ</td><td><span class="badge badge-success">Activo</span></td><td>Hoy 08:15</td><td class="td-actions"><button class="btn btn-ghost btn-sm"><i data-lucide="pencil"></i></button></td></tr>
+                <tr><td>Carlos Ruiz</td><td>carlos@empresa.com</td><td><span class="badge badge-neutral">Consulta</span></td><td>Almacenes del Norte</td><td><span class="badge badge-success">Activo</span></td><td>Ayer 16:45</td><td class="td-actions"><button class="btn btn-ghost btn-sm"><i data-lucide="pencil"></i></button></td></tr>
+                <tr><td>Ana Torres</td><td>ana@empresa.com</td><td><span class="badge badge-warning">Supervisor</span></td><td>Distribuidora XYZ</td><td><span class="badge badge-neutral">Inactivo</span></td><td>05/07/2026</td><td class="td-actions"><button class="btn btn-ghost btn-sm"><i data-lucide="pencil"></i></button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+      <footer class="footer">GRE Smart Control v0.1.0 · © 2026</footer>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script src="js/interactions.js"></script>
+  <script>initApp('Usuarios', 'Usuarios');</script>
+</body>
+</html>

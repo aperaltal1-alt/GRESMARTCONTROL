@@ -1,0 +1,46 @@
+/**
+ * GRE SMART CONTROL — Design Tokens v2
+ * Paleta corporativa: Azul #2563EB
+ * Referencia para implementación Tailwind en Fase 5
+ */
+
+:root {
+  --brand-primary: #2563EB;
+  --brand-secondary: #60A5FA;
+  --brand-dark: #1D4ED8;
+  --brand-50: #EFF6FF;
+  --brand-100: #DBEAFE;
+
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --error: #EF4444;
+  --info: #0EA5E9;
+
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8FAFC;
+  --bg-tertiary: #F1F5F9;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --border: #E2E8F0;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 4.5rem;
+  --header-height: 56px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+.dark {
+  --bg-primary: #0F172A;
+  --bg-secondary: #1E293B;
+  --bg-tertiary: #334155;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --border: #334155;
+  --brand-50: rgba(37, 99, 235, 0.15);
+}

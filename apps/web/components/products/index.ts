@@ -1,0 +1,9 @@
+export { ProductsPageContent } from './products-page';
+export { ProductsTable } from './products-table';
+export { ProductsToolbar } from './products-toolbar';
+export { ProductFormModal } from './product-form-modal';
+export { DeleteProductDialog } from './delete-product-dialog';
+export { ProductStockBadge } from './product-stock-badge';
+export { ProductsEmpty } from './products-empty';
+export { ProductsTableSkeleton } from './products-skeleton';
+export { ProductsPagination } from './products-pagination';

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventario — GRE Smart Control</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components-premium.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main-area">
+      <header class="header" id="header"></header>
+      <main class="content">
+        <h1 class="page-title">Inventario</h1>
+        <p class="page-subtitle">Estado consolidado del almacén</p>
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi-card"><div class="kpi-label">Total Productos</div><div class="kpi-value">245</div></div>
+          <div class="kpi-card"><div class="kpi-label">Stock Total</div><div class="kpi-value">1,840</div></div>
+          <div class="kpi-card"><div class="kpi-label">Disponible</div><div class="kpi-value" style="color:var(--success)">1,720</div></div>
+          <div class="kpi-card"><div class="kpi-label">Reservado</div><div class="kpi-value" style="color:var(--warning)">120</div></div>
+        </div>
+        <div class="filter-bar">
+          <input class="filter-input" placeholder="Buscar producto...">
+          <select class="filter-input filter-select"><option>Todas las ubicaciones</option><option>Almacén A</option><option>Almacén B</option></select>
+        </div>
+        <div class="card">
+          <div class="table-container">
+            <table>
+              <thead><tr><th>Código</th><th>Producto</th><th>Ubicación</th><th>Stock</th><th>Disponible</th><th>Reservado</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr><td class="font-mono">ARROZ-001</td><td>Arroz Premium</td><td>Almacén A</td><td>98</td><td>88</td><td>10</td><td><span class="badge badge-success">Disponible</span></td></tr>
+                <tr><td class="font-mono">AZUCAR-02</td><td>Azúcar Rubia</td><td>Almacén A</td><td>50</td><td>50</td><td>0</td><td><span class="badge badge-success">Disponible</span></td></tr>
+                <tr><td class="font-mono">FIDEO-003</td><td>Fideo Spaghetti</td><td>Almacén B</td><td>3</td><td>3</td><td>0</td><td><span class="badge badge-error">Stock Bajo</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+      <footer class="footer">GRE Smart Control v0.1.0 · © 2026</footer>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script src="js/interactions.js"></script>
+  <script>initApp('Inventario', 'Inventario');</script>
+</body>
+</html>

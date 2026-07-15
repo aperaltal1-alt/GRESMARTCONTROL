@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Ejecutivo — GRE Smart Control</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components-premium.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main-area">
+      <header class="header" id="header"></header>
+      <main class="content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Dashboard Ejecutivo</h1>
+            <p class="page-subtitle" style="margin-bottom:0">Visión estratégica · Control logístico y cumplimiento tributario</p>
+          </div>
+          <div class="period-selector" role="tablist">
+            <button class="period-btn active" role="tab">Mes</button>
+            <button class="period-btn" role="tab">Trimestre</button>
+            <button class="period-btn" role="tab">Año</button>
+          </div>
+        </div>
+
+        <!-- Hero KPIs -->
+        <div class="kpi-grid stagger">
+          <div class="kpi-card featured risk-moderate hover-lift">
+            <div class="kpi-label">Riesgo Tributario</div>
+            <div class="gauge-container">
+              <svg class="gauge-svg" width="120" height="120" viewBox="0 0 100 100">
+                <circle class="gauge-bg" cx="50" cy="50" r="42"/>
+                <circle class="gauge-fill gauge-ring" cx="50" cy="50" r="42" stroke="#F59E0B"
+                  stroke-dasharray="264" stroke-dashoffset="180" style="stroke-dashoffset:180"/>
+              </svg>
+              <div class="gauge-center">
+                <div class="gauge-pct" data-count="32%">0%</div>
+                <div class="gauge-sub">Moderado</div>
+              </div>
+            </div>
+          </div>
+          <div class="kpi-card hover-lift">
+            <div class="kpi-label">GRE Emitidas <i data-lucide="file-text"></i></div>
+            <div class="kpi-value" data-count="128">0</div>
+            <div class="kpi-trend up"><i data-lucide="trending-up" style="width:14px"></i> 12.5% vs mes anterior</div>
+          </div>
+          <div class="kpi-card hover-lift">
+            <div class="kpi-label">GRE Pendientes <i data-lucide="clock"></i></div>
+            <div class="kpi-value" data-count="12" style="color:var(--warning)">0</div>
+            <div class="kpi-trend down"><i data-lucide="trending-down" style="width:14px"></i> 3 vs semana ant.</div>
+          </div>
+          <div class="kpi-card hover-lift">
+            <div class="kpi-label">GRE Conciliadas <i data-lucide="check-circle"></i></div>
+            <div class="kpi-value" data-count="110" style="color:var(--success)">0</div>
+            <div class="kpi-trend up"><i data-lucide="trending-up" style="width:14px"></i> 8.2%</div>
+          </div>
+          <div class="kpi-card hover-lift">
+            <div class="kpi-label">Productos <i data-lucide="package"></i></div>
+            <div class="kpi-value" data-count="245">0</div>
+          </div>
+          <div class="kpi-card hover-lift">
+            <div class="kpi-label">Alertas <i data-lucide="bell"></i></div>
+            <div class="kpi-value" data-count="15" style="color:var(--warning)">0</div>
+          </div>
+          <div class="kpi-card hover-lift">
+            <div class="kpi-label">Incidencias <i data-lucide="alert-triangle"></i></div>
+            <div class="kpi-value" data-count="8" style="color:var(--error)">0</div>
+          </div>
+        </div>
+
+        <!-- Widgets: Cumplimiento, Conciliación, Inventario -->
+        <div class="widget-row reveal">
+          <div class="card elevated widget-mini card-accent-success">
+            <div class="widget-mini-label">Cumplimiento Tributario</div>
+            <div class="widget-mini-value" style="color:var(--success)">94.2%</div>
+            <div class="compliance-bar">
+              <div class="compliance-track"><div class="compliance-fill" style="width:94.2%;background:var(--success)"></div></div>
+              <div class="compliance-meta"><span>Meta: 95%</span><span>▲ 2.1%</span></div>
+            </div>
+          </div>
+          <div class="card elevated widget-mini card-accent-brand">
+            <div class="widget-mini-label">Tasa de Conciliación</div>
+            <div class="widget-mini-value" style="color:var(--brand-primary)">85.9%</div>
+            <div class="compliance-bar">
+              <div class="compliance-track"><div class="compliance-fill" style="width:85.9%;background:var(--brand-primary)"></div></div>
+              <div class="compliance-meta"><span>110 de 128 GRE</span><span>▲ 4%</span></div>
+            </div>
+          </div>
+          <div class="card elevated widget-mini card-accent-warning">
+            <div class="widget-mini-label">Estado del Inventario</div>
+            <div class="widget-mini-value">1,840</div>
+            <div class="compliance-meta" style="margin-top:8px"><span class="badge badge-error">1 crítico</span><span class="badge badge-warning">3 bajo mín.</span></div>
+          </div>
+        </div>
+
+        <!-- Process map -->
+        <div class="card elevated reveal" style="margin-bottom:22px">
+          <div class="card-header"><span class="card-title"><i data-lucide="git-branch" style="width:18px;display:inline;vertical-align:-3px;margin-right:6px"></i>Mapa de Procesos</span></div>
+          <div class="card-body" style="padding:8px 16px 20px">
+            <div class="process-map">
+              <div class="process-step done"><div class="process-icon"><i data-lucide="file-plus"></i></div><div class="process-label">Emisión GRE</div><div class="process-value">128</div></div>
+              <span class="process-arrow">→</span>
+              <div class="process-step done"><div class="process-icon"><i data-lucide="arrow-left-right"></i></div><div class="process-label">Kardex</div><div class="process-value">342</div></div>
+              <span class="process-arrow">→</span>
+              <div class="process-step active"><div class="process-icon"><i data-lucide="clipboard-list"></i></div><div class="process-label">Stock Físico</div><div class="process-value">89</div></div>
+              <span class="process-arrow">→</span>
+              <div class="process-step active"><div class="process-icon"><i data-lucide="scale"></i></div><div class="process-label">Conciliación</div><div class="process-value">85.9%</div></div>
+              <span class="process-arrow">→</span>
+              <div class="process-step"><div class="process-icon"><i data-lucide="shield-check"></i></div><div class="process-label">Cumplimiento</div><div class="process-value">94%</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2-equal" style="margin-bottom:22px">
+          <div class="card elevated reveal">
+            <div class="card-header"><span class="card-title">Tendencia de Conciliación</span><span class="badge badge-brand">6 meses</span></div>
+            <div class="chart-area">
+              <svg class="chart-line-svg" viewBox="0 0 400 180" preserveAspectRatio="none">
+                <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563EB" stop-opacity="0.3"/><stop offset="100%" stop-color="#2563EB" stop-opacity="0"/></linearGradient></defs>
+                <path d="M0,140 L67,120 L133,100 L200,85 L267,70 L333,55 L400,45 L400,180 L0,180Z" fill="url(#g1)"/>
+                <polyline points="0,140 67,120 133,100 200,85 267,70 333,55 400,45" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="chart-legend"><span class="chart-legend-item"><span class="chart-legend-dot" style="background:#2563EB"></span>Conciliadas</span></div>
+          </div>
+          <div class="card elevated reveal">
+            <div class="card-header"><span class="card-title">Diferencias Detectadas</span></div>
+            <div class="chart-area">
+              <svg class="chart-line-svg" viewBox="0 0 400 180" preserveAspectRatio="none">
+                <polyline points="0,60 67,80 133,50 200,90 267,40 333,70 400,30" fill="none" stroke="#EF4444" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="chart-legend"><span class="chart-legend-item"><span class="chart-legend-dot" style="background:#EF4444"></span>Incidencias/mes</span></div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:22px">
+          <div class="card elevated reveal">
+            <div class="card-header"><span class="card-title">Actividad Reciente</span><a href="trazabilidad.html" class="btn btn-ghost btn-sm">Ver todo</a></div>
+            <div class="card-body">
+              <div class="timeline-premium">
+                <div class="timeline-item"><div class="timeline-dot brand"><i data-lucide="file-text"></i></div><div class="timeline-card"><div class="timeline-header"><span class="timeline-title">GRE-050 registrada</span><span class="timeline-time">Hace 2h</span></div><div class="timeline-desc">2 productos · Transportes A</div></div></div>
+                <div class="timeline-item"><div class="timeline-dot success"><i data-lucide="check"></i></div><div class="timeline-card"><div class="timeline-header"><span class="timeline-title">Conciliación GRE-049</span><span class="timeline-time">Hace 5h</span></div></div></div>
+                <div class="timeline-item"><div class="timeline-dot error"><i data-lucide="alert-triangle"></i></div><div class="timeline-card"><div class="timeline-header"><span class="timeline-title">Diferencia ARROZ-001</span><span class="timeline-time">Hace 1d</span></div><div class="timeline-desc">GRE 100 vs Físico 95</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card elevated reveal">
+            <div class="card-header"><span class="card-title">Alertas Prioritarias</span><span class="badge badge-error">5 activas</span></div>
+            <div class="card-body">
+              <div class="alert-list">
+                <div class="alert-card error"><div class="alert-title"><span>Diferencia GRE-050</span><span class="alert-time">2h</span></div><div class="alert-desc">ARROZ-001: +5 unidades</div></div>
+                <div class="alert-card warning"><div class="alert-title"><span>Stock mínimo</span><span class="alert-time">5h</span></div><div class="alert-desc">FIDEO-003: 3/5 unidades</div></div>
+                <div class="alert-card info"><div class="alert-title"><span>Riesgo tributario</span><span class="alert-time">1d</span></div><div class="alert-desc">Nivel moderado (32%)</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card elevated reveal">
+          <div class="card-header"><span class="card-title">Análisis Avanzado <span class="beta-badge">Power BI</span></span></div>
+          <div class="card-body">
+            <div class="powerbi-slot">
+              <i data-lucide="bar-chart-3" style="width:56px;height:56px;color:var(--brand-primary);margin-bottom:16px"></i>
+              <h3 style="font-size:20px;font-weight:700;margin-bottom:8px">Power BI Embedded</h3>
+              <p style="max-width:480px;margin:0 auto;line-height:1.6">Dashboards interactivos personalizados para análisis profundo de trazabilidad, cumplimiento tributario y tendencias operativas.</p>
+            </div>
+          </div>
+        </div>
+      </main>
+      <footer class="footer">GRE Smart Control v0.1.0 · © 2026 · <a href="#" style="color:var(--brand-primary)">Soporte</a></footer>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script src="js/interactions.js"></script>
+  <script>initApp('Dashboard Ejecutivo', 'Dashboard Ejecutivo');</script>
+</body>
+</html>

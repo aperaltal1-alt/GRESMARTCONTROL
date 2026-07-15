@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock Físico — GRE Smart Control</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components-premium.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main-area">
+      <header class="header" id="header"></header>
+      <main class="content">
+        <div class="page-header">
+          <div><h1 class="page-title">Stock Físico</h1><p class="page-subtitle" style="margin-bottom:0">Conteos físicos independientes del kardex</p></div>
+          <button class="btn btn-primary"><i data-lucide="plus"></i> Registrar Conteo</button>
+        </div>
+        <div class="filter-bar">
+          <select class="filter-input filter-select"><option>Todos los productos</option></select>
+          <select class="filter-input filter-select"><option>Todas las ubicaciones</option><option>Almacén A</option></select>
+        </div>
+        <div class="card">
+          <div class="table-container">
+            <table>
+              <thead><tr><th>Fecha</th><th>Producto</th><th>Cantidad Física</th><th>Stock Kardex</th><th>Ubicación</th><th>Comparación</th><th>Registrado por</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>07/07/2026</td><td class="font-mono">ARROZ-001</td><td style="font-weight:600">95</td><td>98</td><td>Almacén A</td>
+                  <td><span class="badge badge-error">⚠ Diferencia -3</span></td><td>María López</td>
+                  <td><button class="btn btn-primary btn-sm">Conciliar</button></td>
+                </tr>
+                <tr>
+                  <td>07/07/2026</td><td class="font-mono">AZUCAR-02</td><td style="font-weight:600">50</td><td>50</td><td>Almacén A</td>
+                  <td><span class="badge badge-success">✓ Coincide</span></td><td>María López</td>
+                  <td><button class="btn btn-secondary btn-sm">Ver</button></td>
+                </tr>
+                <tr>
+                  <td>06/07/2026</td><td class="font-mono">FIDEO-003</td><td style="font-weight:600">3</td><td>3</td><td>Almacén B</td>
+                  <td><span class="badge badge-success">✓ Coincide</span></td><td>Juan Pérez</td>
+                  <td><button class="btn btn-secondary btn-sm">Ver</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+      <footer class="footer">GRE Smart Control v0.1.0 · © 2026</footer>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script src="js/interactions.js"></script>
+  <script>initApp('Stock Físico', 'Stock Físico');</script>
+</body>
+</html>
