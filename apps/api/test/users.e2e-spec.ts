@@ -1,12 +1,12 @@
 import { INestApplication } from '@nestjs/common';
-import * as bcrypt from 'bcryptjs';
 import request from 'supertest';
 import { PrismaClient } from '@prisma/client';
 import { closeE2eApp, createE2eApp } from './setup-e2e';
+import { DEMO_USERS, ensureDemoUsersReady } from './seed-helpers';
 
-const ADMIN_EMAIL = 'admin@gre-demo.pe';
-const ADMIN_PASSWORD = 'Demo2024!';
-const SUPERVISOR_EMAIL = 'supervisor@gre-demo.pe';
+const ADMIN_EMAIL = DEMO_USERS.admin.email;
+const ADMIN_PASSWORD = DEMO_USERS.admin.password;
+const SUPERVISOR_EMAIL = DEMO_USERS.supervisor.email;
 
 describe('Users Module (e2e)', () => {
   let app: INestApplication;
@@ -27,12 +27,7 @@ describe('Users Module (e2e)', () => {
   beforeAll(async () => {
     app = await createE2eApp();
     prisma = new PrismaClient();
-
-    const adminHash = await bcrypt.hash(ADMIN_PASSWORD, 12);
-    await prisma.usuario.update({
-      where: { email: ADMIN_EMAIL },
-      data: { activo: true, deletedAt: null, passwordHash: adminHash },
-    });
+    await ensureDemoUsersReady(prisma);
 
     adminToken = await login(ADMIN_EMAIL, ADMIN_PASSWORD);
     supervisorToken = await login(SUPERVISOR_EMAIL, ADMIN_PASSWORD);

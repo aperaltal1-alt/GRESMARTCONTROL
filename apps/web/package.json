@@ -5,6 +5,7 @@
   "description": "GRE SMART CONTROL — Frontend SaaS (Next.js)",
   "scripts": {
     "dev": "next dev -p 3000",
+    "dev:clean": "node -e \"try{require('fs').rmSync('.next',{recursive:true,force:true})}catch(e){}\" && next dev -p 3000",
     "build": "next build",
     "build:prod": "next build",
     "start": "next start -p 3000",

@@ -4,9 +4,10 @@ import * as bcrypt from 'bcryptjs';
 import request from 'supertest';
 import { PrismaClient } from '@prisma/client';
 import { closeE2eApp, createE2eApp } from './setup-e2e';
+import { DEMO_USERS, ensureDemoUsersReady } from './seed-helpers';
 
-const DEMO_EMAIL = 'admin@gre-demo.pe';
-const DEMO_PASSWORD = 'Demo2024!';
+const DEMO_EMAIL = DEMO_USERS.admin.email;
+const DEMO_PASSWORD = DEMO_USERS.admin.password;
 const TEST_IP = '127.0.0.1';
 
 describe('Auth Module (e2e) — Fase 4.2', () => {
@@ -14,11 +15,7 @@ describe('Auth Module (e2e) — Fase 4.2', () => {
   let prisma: PrismaClient;
 
   async function ensureDemoAdminReady() {
-    const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
-    await prisma.usuario.update({
-      where: { email: DEMO_EMAIL },
-      data: { activo: true, deletedAt: null, passwordHash },
-    });
+    await ensureDemoUsersReady(prisma);
   }
 
   beforeAll(async () => {

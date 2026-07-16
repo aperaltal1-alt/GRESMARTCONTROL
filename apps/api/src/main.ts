@@ -9,7 +9,6 @@ import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { setupSwagger } from './config/swagger.setup';
 import { validateProductionConfig } from './config/validate-production';
-import { PrismaService } from './database/prisma';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -29,6 +28,10 @@ async function bootstrap() {
   const appUrl = config.get<string>('appUrl', '');
   const isProduction = nodeEnv === 'production';
 
+  if (!Number.isFinite(port) || port <= 0) {
+    throw new Error(`Invalid PORT value: ${port}`);
+  }
+
   if (isProduction) {
     app.set('trust proxy', 1);
   }
@@ -43,8 +46,14 @@ async function bootstrap() {
   );
   app.use(cookieParser());
   app.use(compression());
+
+  const allowedOrigins = corsOrigin
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
   app.enableCors({
-    origin: corsOrigin.split(',').map((o) => o.trim()),
+    origin: allowedOrigins.length > 0 ? allowedOrigins : false,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
@@ -65,18 +74,20 @@ async function bootstrap() {
     setupSwagger(app);
   }
 
-  const prisma = app.get(PrismaService);
-  await prisma.enableShutdownHooks(app);
+  app.enableShutdownHooks();
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
-  const serverBase = appUrl || `http://0.0.0.0:${port}`;
-  logger.log(`🚀 GRE Smart Control API — ${nodeEnv}`, 'Bootstrap');
-  logger.log(`📡 Server:    ${serverBase}/${apiPrefix}`, 'Bootstrap');
+  const serverBase = appUrl || `http://localhost:${port}`;
+  logger.log(`GRE Smart Control API — ${nodeEnv}`, 'Bootstrap');
+  logger.log(`Server:    ${serverBase}/${apiPrefix}`, 'Bootstrap');
   if (config.get<boolean>('swagger.enabled', false)) {
-    logger.log(`📚 Swagger:   ${serverBase}/${apiPrefix}/docs`, 'Bootstrap');
+    logger.log(`Swagger:   ${serverBase}/${apiPrefix}/docs`, 'Bootstrap');
   }
-  logger.log(`❤️  Health:    ${serverBase}/${apiPrefix}/health`, 'Bootstrap');
+  logger.log(`Health:    ${serverBase}/${apiPrefix}/health`, 'Bootstrap');
 }
 
-bootstrap();
+bootstrap().catch((error: unknown) => {
+  console.error('Failed to start GRE Smart Control API:', error);
+  process.exit(1);
+});

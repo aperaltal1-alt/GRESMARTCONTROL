@@ -49,6 +49,7 @@ describe('Products Module (e2e) — Fase 4.4', () => {
     });
     const ids = testProducts.map((p) => p.id);
     if (ids.length) {
+      await prisma.inventario.deleteMany({ where: { productoId: { in: ids } } });
       await prisma.kardex.deleteMany({ where: { productoId: { in: ids } } });
       await prisma.producto.deleteMany({ where: { id: { in: ids } } });
     }
